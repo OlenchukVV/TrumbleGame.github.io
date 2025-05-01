@@ -9,7 +9,7 @@ const playerFrames = [
   new Image()
 ];
 playerFrames[0].src = "assets/player.png"; // стоїть
-playerFrames[1].src = "assets/playerMIF.png"; // дихає
+playerFrames[1].src = "assets/playerMIFF.png"; // дихає
 
 let player = {
   x: 400,
