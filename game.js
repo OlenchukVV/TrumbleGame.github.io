@@ -35,10 +35,10 @@ window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 function update(deltaTime) {
   let moving = false;
 
-  if (keys["W"]) { player.y -= player.speed; moving = true; }
-  if (keys["S"]) { player.y += player.speed; moving = true; }
-  if (keys["A"]) { player.x -= player.speed; moving = true; }
-  if (keys["D"]) { player.x += player.speed; moving = true; }
+  if (keys["w"]) { player.y -= player.speed; moving = true; }
+  if (keys["s"]) { player.y += player.speed; moving = true; }
+  if (keys["a"]) { player.x -= player.speed; moving = true; }
+  if (keys["d"]) { player.x += player.speed; moving = true; }
 
   // Межі карти
   player.x = Math.max(0, Math.min(mapWidth - player.width, player.x));
