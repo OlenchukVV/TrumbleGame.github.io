@@ -1,6 +1,9 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 const bgImage = new Image();
 bgImage.src = "assets/background.jpg";
 
@@ -11,10 +14,13 @@ const playerFrames = [
 playerFrames[0].src = "assets/player.png"; // стоїть
 playerFrames[1].src = "assets/playerMIFF.png"; // дихає
 
+let mapWidth = 1600;  // розмір карти (фон)
+let mapHeight = 1200;
+
 let player = {
-  x: 400,
-  y: 300,
-  speed: 3,
+  x: mapWidth / 2,
+  y: mapHeight / 2,
+  speed: 4,
   width: 32,
   height: 32,
   currentFrame: 0,
@@ -23,39 +29,48 @@ let player = {
 };
 
 const keys = {};
-window.addEventListener("keydown", (e) => keys[e.key] = true);
-window.addEventListener("keyup", (e) => keys[e.key] = false);
+window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
+window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 
 function update(deltaTime) {
   let moving = false;
 
-  if (keys["ArrowUp"])  { player.y -= player.speed; moving = true; }
-  if (keys["ArrowDown"]) { player.y += player.speed; moving = true; }
-  if (keys["ArrowLeft"]) { player.x -= player.speed; moving = true; }
-  if (keys["ArrowRight"]) { player.x += player.speed; moving = true; }
+  if (keys["w"]) { player.y -= player.speed; moving = true; }
+  if (keys["s"]) { player.y += player.speed; moving = true; }
+  if (keys["a"]) { player.x -= player.speed; moving = true; }
+  if (keys["d"]) { player.x += player.speed; moving = true; }
 
-  player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-  player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+  // Межі карти
+  player.x = Math.max(0, Math.min(mapWidth - player.width, player.x));
+  player.y = Math.max(0, Math.min(mapHeight - player.height, player.y));
 
   player.isMoving = moving;
 
-  // Якщо не рухається — перемикати кадри кожні 500 мс
   if (!player.isMoving) {
     if (performance.now() - player.lastFrameTime > 500) {
       player.currentFrame = (player.currentFrame + 1) % 2;
       player.lastFrameTime = performance.now();
     }
   } else {
-    player.currentFrame = 0; // Завжди перший кадр під час руху
+    player.currentFrame = 0;
   }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
 
+  // Центр камери — персонаж
+  const camX = player.x - canvas.width / 2 + player.width / 2;
+  const camY = player.y - canvas.height / 2 + player.height / 2;
+
+  // Малюємо фон з урахуванням камери
+  ctx.drawImage(bgImage, -camX, -camY, mapWidth, mapHeight);
+
+  // Малюємо гравця в центрі екрану
   const frameImage = playerFrames[player.currentFrame];
-  ctx.drawImage(frameImage, player.x, player.y, player.width, player.height);
+  const drawX = canvas.width / 2 - player.width / 2;
+  const drawY = canvas.height / 2 - player.height / 2;
+  ctx.drawImage(frameImage, drawX, drawY, player.width, player.height);
 }
 
 let lastTime = 0;
@@ -67,6 +82,12 @@ function gameLoop(timestamp) {
   draw();
   requestAnimationFrame(gameLoop);
 }
+
+// Зміна розміру вікна
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
 
 bgImage.onload = () => {
   playerFrames[0].onload = () => {
